@@ -69,6 +69,10 @@ class Stream():
     parent = ""
     children = []
     count = 0
+    # Streams with is_optional=True depend on a specific plan tier or paid add-on.
+    # A 403 on these during discovery excludes them from the catalog rather than
+    # blocking connection creation.
+    is_optional = False
 
     def __init__(self, client=None, config=None):
         self.client = client
@@ -364,14 +368,14 @@ def raise_or_log_zenpy_apiexception(schema, stream, e):
         raise ValueError("Called with a bad exception type") from e
 
     #If read permission is not available in OAuth access_token, then it returns the below error.
-    if json.loads(e.args[0]).get('description') == "You are missing the following required scopes: read":
+    if json.loads(e.args[0]).get('description') == "Missing the following required scopes: read":
         LOGGER.warning("The account credentials supplied do not have access to `%s` custom fields.",
                        stream)
         return schema
     error = json.loads(e.args[0]).get('error')
     # check if the error is of type dictionary and the message retrieved from the dictionary
     # is the expected message. If so, only then print the logger message and return the schema
-    if isinstance(error, dict) and error.get('message', None) == "You do not have access to this page. Please contact the account owner of this help desk for further help.":
+    if isinstance(error, dict) and error.get('message', None) == "Access to this resource is restricted. Please contact the account administrator for assistance.":
         LOGGER.warning("The account credentials supplied do not have access to `%s` custom fields.",
                        stream)
         return schema

@@ -1,9 +1,8 @@
 # Changelog
 
-<<<<<<< HEAD
-## 2.8.0
+## 2.9.0
   * Added multiple new streams [#176](https://github.com/singer-io/tap-zendesk/pull/176)
-=======
+
 # 2.8.2
   * Bump aiohttp to 3.13.4 for security updates [#186](https://github.com/singer-io/tap-zendesk/pull/186)
 
@@ -24,7 +23,6 @@
 
 ## 2.7.2
   * Update aiohttp for twistlock [#178](https://github.com/singer-io/tap-zendesk/pull/178)
->>>>>>> origin/master
 
 ## 2.7.1
   * Update dependencies [#177](https://github.com/singer-io/tap-zendesk/pull/177)

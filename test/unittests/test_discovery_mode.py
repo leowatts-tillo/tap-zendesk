@@ -1,15 +1,11 @@
 import unittest
 from unittest.mock import MagicMock, Mock, patch
-<<<<<<< HEAD
-=======
 from parameterized import parameterized
 from tap_zendesk import discover, http
 from tap_zendesk.streams import TalkPhoneNumbers, SLAPolicies, TicketForms, SatisfactionRatings, STREAMS
 import tap_zendesk
->>>>>>> origin/master
 import requests
 import zenpy
-from tap_zendesk import discover
 from tap_zendesk.exceptions import (
     ZendeskForbiddenError,
     ZendeskBadRequestError
@@ -67,22 +63,15 @@ class TestDiscovery(unittest.TestCase):
         self.assertEqual(expected_call_count, actual_call_count)
 
         # Verifying the logger message
-<<<<<<< HEAD
         mock_logger.assert_called_with("The account credentials supplied do not have 'read' access to the following stream(s): " \
         "audit_logs, automations, bookmarks, brands, custom_objects, custom_roles, deleted_tickets, deleted_users, " \
-        "dynamic_content_items, groups, group_memberships, macros, organizations, satisfaction_ratings, sessions, " \
+        "dynamic_content_items, groups, group_memberships, macros, organizations, sessions, " \
         "sharing_agreements, side_conversations_events, recipient_addresses, suspended_tickets, tags, targets, target_failures, " \
         "tickets, ticket_audits, ticket_fields, ticket_forms, users, account_attribute_definitions, account_attributes, locales, " \
         "job_statuses, macro_actions, macro_categories, macro_definitions, monitored_twitter_handles, organization_memberships, " \
         "organization_subscriptions, support_requests, resource_collections, satisfaction_reasons, schedules, triggers, " \
         "trigger_categories, views, workspaces, incremental_ticket_events, ticket_skips. The data for these streams would not be collected " \
         "due to lack of required permission.")
-=======
-        mock_logger.assert_called_with("The account credentials supplied do not have 'read' access to the following stream(s): "\
-            "groups, users, organizations, ticket_audits, ticket_fields, ticket_forms, group_memberships, macros, "\
-            "tags. The data for these streams would not be collected due to lack of required "\
-            "permission.")
->>>>>>> origin/master
 
     @patch("tap_zendesk.discover.LOGGER.warning")
     @patch('tap_zendesk.streams.TalkPhoneNumbers.check_access')
@@ -115,22 +104,15 @@ class TestDiscovery(unittest.TestCase):
         self.assertEqual(expected_call_count, actual_call_count)
 
         # Verifying the logger message
-<<<<<<< HEAD
         mock_logger.assert_called_with("The account credentials supplied do not have 'read' access to the following stream(s): " \
         "activities, audit_logs, automations, bookmarks, brands, custom_objects, custom_roles, deleted_tickets, deleted_users, " \
-        "dynamic_content_items, groups, group_memberships, macros, organizations, satisfaction_ratings, sessions, " \
+        "dynamic_content_items, groups, group_memberships, macros, organizations, sessions, " \
         "sharing_agreements, side_conversations_events, sla_policies, recipient_addresses, suspended_tickets, tags, " \
         "targets, target_failures, tickets, ticket_audits, ticket_fields, ticket_forms, users, account_attribute_definitions, " \
         "account_attributes, locales, job_statuses, macro_actions, macro_categories, macro_definitions, monitored_twitter_handles, " \
         "organization_memberships, organization_subscriptions, support_requests, resource_collections, satisfaction_reasons, " \
         "schedules, triggers, trigger_categories, views, workspaces, incremental_ticket_events, ticket_skips. The data for " \
         "these streams would not be collected due to lack of required permission.")
-=======
-        mock_logger.assert_called_with("The account credentials supplied do not have 'read' access to the following stream(s): "\
-            "groups, users, organizations, ticket_audits, ticket_fields, ticket_forms, group_memberships, macros, "\
-            "tags, sla_policies. The data for these streams would not be collected due to "\
-            "lack of required permission.")
->>>>>>> origin/master
 
     @patch("tap_zendesk.discover.LOGGER.warning")
     @patch('tap_zendesk.streams.TalkPhoneNumbers.check_access')
@@ -163,21 +145,15 @@ class TestDiscovery(unittest.TestCase):
         self.assertEqual(expected_call_count, actual_call_count)
 
         # Verifying the logger message
-<<<<<<< HEAD
         mock_logger.assert_called_with("The account credentials supplied do not have 'read' access to the following stream(s): " \
         "activities, audit_logs, automations, bookmarks, brands, custom_objects, custom_roles, deleted_tickets, deleted_users, " \
-        "dynamic_content_items, groups, group_memberships, macros, organizations, satisfaction_ratings, sessions, " \
+        "dynamic_content_items, groups, group_memberships, macros, organizations, sessions, " \
         "sharing_agreements, side_conversations_events, recipient_addresses, suspended_tickets, tags, targets, target_failures, " \
         "tickets, ticket_audits, ticket_fields, ticket_forms, users, account_attribute_definitions, account_attributes, locales, " \
         "job_statuses, macro_actions, macro_categories, macro_definitions, monitored_twitter_handles, organization_memberships, " \
         "organization_subscriptions, support_requests, resource_collections, satisfaction_reasons, schedules, triggers, " \
         "trigger_categories, views, workspaces, incremental_ticket_events, ticket_skips. The data for these streams would not " \
         "be collected due to lack of required permission.")
-=======
-        mock_logger.assert_called_with("The account credentials supplied do not have 'read' access to the following stream(s): "\
-            "tickets, groups, users, organizations, ticket_fields, ticket_forms, group_memberships, macros, "\
-            "tags. The data for these streams would not be collected due to lack of required permission.")
->>>>>>> origin/master
 
     @patch('tap_zendesk.streams.TalkPhoneNumbers.check_access')
     @patch('tap_zendesk.streams.TicketMetricEvents.check_access')
@@ -330,8 +306,8 @@ class TestOptionalStreamDiscovery(unittest.TestCase):
            side_effect=http.ZendeskForbiddenError(
                '403 Client Error: Forbidden for url: '
                'https://testaccount.zendesk.com/api/v2/channels/voice/phone_numbers.json'))
-    @patch('tap_zendesk.streams.SLAPolicies.check_access')         # succeeds
-    @patch('tap_zendesk.streams.TicketForms.check_access')          # succeeds
+    @patch('tap_zendesk.streams.SLAPolicies.check_access')         # succeeds (optional but accessible)
+    @patch('tap_zendesk.streams.TicketForms.check_access')          # succeeds (optional but accessible)
     @patch('tap_zendesk.streams.TicketMetricEvents.check_access')   # succeeds
     @patch('tap_zendesk.streams.Organizations.check_access')        # succeeds
     @patch('tap_zendesk.streams.Users.check_access')                # succeeds
@@ -340,14 +316,7 @@ class TestOptionalStreamDiscovery(unittest.TestCase):
     @patch('tap_zendesk.streams.Stream.load_schema', return_value={})
     @patch('singer.resolve_schema_references', return_value={})
     @patch('requests.get', side_effect=[
-        mocked_get(status_code=200, json={'tickets': [{'id': 't1'}]}),  # tickets
-        mocked_get(status_code=200, json={'groups': []}),               # groups
-        mocked_get(status_code=200, json={}),                           # ticket_audits
-        mocked_get(status_code=200, json={}),                           # ticket_fields
-        mocked_get(status_code=200, json={}),                           # group_memberships
-        mocked_get(status_code=200, json={}),                           # macros
-        mocked_get(status_code=200, json={}),                           # satisfaction_ratings
-        mocked_get(status_code=200, json={}),                           # tags
+        mocked_get(status_code=200, json={}) for _ in range(100)
     ])
     def test_talk_phone_numbers_403_excluded_connection_succeeds(
             self, mock_get, mock_resolve_schema_references, mock_load_schema,
@@ -399,6 +368,8 @@ class TestOptionalStreamDiscovery(unittest.TestCase):
            side_effect=http.ZendeskForbiddenError('403 Forbidden: sla not on plan'))
     @patch('tap_zendesk.streams.TicketForms.check_access',
            side_effect=http.ZendeskForbiddenError('403 Forbidden: ticket_forms not on plan'))
+    @patch('tap_zendesk.streams.SatisfactionRatings.check_access',
+           side_effect=http.ZendeskForbiddenError('403 Forbidden: satisfaction_ratings not on plan'))
     @patch('tap_zendesk.streams.TicketMetricEvents.check_access')   # succeeds
     @patch('tap_zendesk.streams.Organizations.check_access')        # succeeds
     @patch('tap_zendesk.streams.Users.check_access')                # succeeds
@@ -407,21 +378,14 @@ class TestOptionalStreamDiscovery(unittest.TestCase):
     @patch('tap_zendesk.streams.Stream.load_schema', return_value={})
     @patch('singer.resolve_schema_references', return_value={})
     @patch('requests.get', side_effect=[
-        mocked_get(status_code=200, json={'tickets': [{'id': 't1'}]}),  # tickets
-        mocked_get(status_code=200, json={}),                           # groups
-        mocked_get(status_code=200, json={}),                           # ticket_audits
-        mocked_get(status_code=200, json={}),                           # ticket_fields
-        mocked_get(status_code=200, json={}),                           # group_memberships
-        mocked_get(status_code=200, json={}),                           # macros
-        mocked_get(status_code=403, json={}),                           # satisfaction_ratings (optional, 403 → excluded)
-        mocked_get(status_code=200, json={}),                           # tags
+        mocked_get(status_code=200, json={}) for _ in range(100)
     ])
     def test_all_optional_streams_403_connection_still_succeeds(
             self, mock_get, mock_resolve_schema_references, mock_load_schema,
             mock_load_metadata, mock_load_shared_schema_refs,
             mock_users, mock_organizations, mock_ticket_metric_events,
-            mock_ticket_forms, mock_sla_policies, mock_talk_phone_numbers,
-            mock_logger):
+            mock_satisfaction_ratings, mock_ticket_forms, mock_sla_policies,
+            mock_talk_phone_numbers, mock_logger):
         '''
         When all four optional/plan-tier streams (talk_phone_numbers, sla_policies,
         ticket_forms, satisfaction_ratings) return 403, the connection must still
