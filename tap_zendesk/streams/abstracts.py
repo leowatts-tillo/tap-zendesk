@@ -382,6 +382,28 @@ def raise_or_log_zenpy_apiexception(schema, stream, e):
     else:
         raise e
 
+
+def raise_forbidden_if_access_denied(e):
+    """
+    Convert a Zenpy APIException that signals a 403-type access denial into a
+    ZendeskForbiddenError so that discover.py can handle it uniformly via
+    the ``is_optional`` flag.
+
+    Raises ZendeskForbiddenError when the exception indicates the account lacks
+    the required scope or plan access; re-raises the original exception otherwise.
+    """
+    from tap_zendesk import http  # local import to avoid circular imports
+    try:
+        args0 = json.loads(e.args[0])
+        err = args0.get('error')
+        description = args0.get('description', '')
+    except (json.JSONDecodeError, ValueError, IndexError) as exc:
+        raise e from exc
+    if (isinstance(err, dict) and err.get('message') == "Access to this resource is restricted. Please contact the account administrator for assistance.") \
+            or description == "Missing the following required scopes: read":
+        raise http.ZendeskForbiddenError(str(e)) from None
+    raise e
+
 class ParentChildBookmarkMixin:
     """
     Mixin to extend bookmark handling for streams with child streams.

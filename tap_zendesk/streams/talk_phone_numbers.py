@@ -1,9 +1,8 @@
-import json
 import requests
 from zenpy.lib.exception import APIException
 from tap_zendesk import http
 from tap_zendesk.exceptions import ZendeskNotFoundError
-from tap_zendesk.streams.abstracts import Stream
+from tap_zendesk.streams.abstracts import Stream, raise_forbidden_if_access_denied
 
 
 class TalkPhoneNumbers(Stream):
@@ -28,14 +27,4 @@ class TalkPhoneNumbers(Stream):
                 raise http.ZendeskForbiddenError(str(e)) from None
             raise
         except APIException as e:
-            # Handle Zenpy APIException 403 with various message formats
-            try:
-                args0 = json.loads(e.args[0])
-                err = args0.get('error')
-                description = args0.get('description', '')
-            except (json.JSONDecodeError, ValueError, IndexError) as exc:
-                raise e from exc
-            if (isinstance(err, dict) and err.get('message') == "Access to this resource is restricted. Please contact the account administrator for assistance.") \
-                    or description == "Missing the following required scopes: read":
-                raise http.ZendeskForbiddenError(str(e)) from None
-            raise
+            raise_forbidden_if_access_denied(e)
