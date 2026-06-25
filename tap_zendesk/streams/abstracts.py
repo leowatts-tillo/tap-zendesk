@@ -392,7 +392,6 @@ def raise_forbidden_if_access_denied(e):
     Raises ZendeskForbiddenError when the exception indicates the account lacks
     the required scope or plan access; re-raises the original exception otherwise.
     """
-    from tap_zendesk import http  # local import to avoid circular imports
     try:
         args0 = json.loads(e.args[0])
         err = args0.get('error')

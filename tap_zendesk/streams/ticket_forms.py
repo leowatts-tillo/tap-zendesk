@@ -1,4 +1,3 @@
-import json
 from zenpy.lib.exception import APIException
 from singer import utils
 from tap_zendesk.streams.abstracts import Stream, raise_forbidden_if_access_denied
