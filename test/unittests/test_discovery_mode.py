@@ -8,7 +8,9 @@ import requests
 import zenpy
 from tap_zendesk.exceptions import (
     ZendeskForbiddenError,
-    ZendeskBadRequestError
+    ZendeskBadRequestError,
+    ZendeskNotFoundError,
+    ZendeskInternalServerError,
 )
 
 ACCSESS_TOKEN_ERROR = '{"error": "Forbidden", "description": "Missing the following required scopes: read"}'
@@ -303,7 +305,7 @@ class TestOptionalStreamDiscovery(unittest.TestCase):
     # -------------------------------------------------------------------------
     @patch('tap_zendesk.discover.LOGGER.warning')
     @patch('tap_zendesk.streams.TalkPhoneNumbers.check_access',
-           side_effect=http.ZendeskForbiddenError(
+            side_effect=ZendeskForbiddenError(
                '403 Client Error: Forbidden for url: '
                'https://testaccount.zendesk.com/api/v2/channels/voice/phone_numbers.json'))
     @patch('tap_zendesk.streams.SLAPolicies.check_access')         # succeeds (optional but accessible)
@@ -363,13 +365,13 @@ class TestOptionalStreamDiscovery(unittest.TestCase):
     # -------------------------------------------------------------------------
     @patch('tap_zendesk.discover.LOGGER.warning')
     @patch('tap_zendesk.streams.TalkPhoneNumbers.check_access',
-           side_effect=http.ZendeskForbiddenError('403 Forbidden: talk not provisioned'))
+            side_effect=ZendeskForbiddenError('403 Forbidden: talk not provisioned'))
     @patch('tap_zendesk.streams.SLAPolicies.check_access',
-           side_effect=http.ZendeskForbiddenError('403 Forbidden: sla not on plan'))
+            side_effect=ZendeskForbiddenError('403 Forbidden: sla not on plan'))
     @patch('tap_zendesk.streams.TicketForms.check_access',
-           side_effect=http.ZendeskForbiddenError('403 Forbidden: ticket_forms not on plan'))
+            side_effect=ZendeskForbiddenError('403 Forbidden: ticket_forms not on plan'))
     @patch('tap_zendesk.streams.SatisfactionRatings.check_access',
-           side_effect=http.ZendeskForbiddenError('403 Forbidden: satisfaction_ratings not on plan'))
+            side_effect=ZendeskForbiddenError('403 Forbidden: satisfaction_ratings not on plan'))
     @patch('tap_zendesk.streams.TicketMetricEvents.check_access')   # succeeds
     @patch('tap_zendesk.streams.Organizations.check_access')        # succeeds
     @patch('tap_zendesk.streams.Users.check_access')                # succeeds
@@ -452,7 +454,7 @@ class TestCheckAccessOptionalStreams(unittest.TestCase):
         getattr(client, client_attr).side_effect = zenpy.lib.exception.APIException(ACCSESS_TOKEN_ERROR)
         stream = stream_cls(client, self.CONFIG)
 
-        with self.assertRaises(http.ZendeskForbiddenError):
+        with self.assertRaises(ZendeskForbiddenError):
             stream.check_access()
 
     # -----------------------------------------------------------------------
@@ -466,7 +468,7 @@ class TestCheckAccessOptionalStreams(unittest.TestCase):
             403,
             '403 Client Error: Forbidden for url: '
             'https://testaccount.zendesk.com/api/v2/channels/voice/phone_numbers.json',
-            http.ZendeskForbiddenError,
+            ZendeskForbiddenError,
         ),
         (
             'http_non_403_reraises_unchanged',
@@ -499,7 +501,7 @@ class TestCheckAccessOptionalStreams(unittest.TestCase):
         has no phone numbers configured, which is not a permissions problem.
         '''
         client = MagicMock()
-        client.talk.phone_numbers.side_effect = http.ZendeskNotFoundError('Not Found')
+        client.talk.phone_numbers.side_effect = ZendeskNotFoundError('Not Found')
         stream = TalkPhoneNumbers(client, self.CONFIG)
 
         stream.check_access()
@@ -520,7 +522,7 @@ class TestCheckAccessOptionalStreams(unittest.TestCase):
         with patch('requests.get', return_value=mocked_get(
                 status_code=403, json={'error': 'Forbidden'})):
             stream = SatisfactionRatings(MagicMock(), self.CONFIG)
-            with self.assertRaises(http.ZendeskForbiddenError):
+            with self.assertRaises(ZendeskForbiddenError):
                 stream.check_access()
 
     def test_satisfaction_ratings_non_403_reraises_unchanged(self):
@@ -530,7 +532,7 @@ class TestCheckAccessOptionalStreams(unittest.TestCase):
         (which retries 5xx errors up to 10 times, causing the test to hang).
         '''
         with patch('tap_zendesk.streams.http.call_api',
-                   side_effect=http.ZendeskInternalServerError('500 Server Error')):
+                   side_effect=ZendeskInternalServerError('500 Server Error')):
             stream = SatisfactionRatings(MagicMock(), self.CONFIG)
-            with self.assertRaises(http.ZendeskInternalServerError):
+            with self.assertRaises(ZendeskInternalServerError):
                 stream.check_access()
