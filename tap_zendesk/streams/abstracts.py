@@ -11,6 +11,7 @@ from singer import (
 )
 from singer.metrics import Point
 from tap_zendesk import http
+from tap_zendesk.exceptions import ZendeskForbiddenError
 
 
 LOGGER = singer.get_logger()
@@ -400,7 +401,7 @@ def raise_forbidden_if_access_denied(e):
         raise e from exc
     if (isinstance(err, dict) and err.get('message') == "Access to this resource is restricted. Please contact the account administrator for assistance.") \
             or description == "Missing the following required scopes: read":
-        raise http.ZendeskForbiddenError(str(e)) from None
+        raise ZendeskForbiddenError(str(e)) from None
     raise e
 
 class ParentChildBookmarkMixin:

@@ -1,7 +1,6 @@
 import requests
 from zenpy.lib.exception import APIException
-from tap_zendesk import http
-from tap_zendesk.exceptions import ZendeskNotFoundError
+from tap_zendesk.exceptions import ZendeskNotFoundError, ZendeskForbiddenError
 from tap_zendesk.streams.abstracts import Stream, raise_forbidden_if_access_denied
 
 
@@ -24,7 +23,7 @@ class TalkPhoneNumbers(Stream):
             # Zenpy's Talk API raises requests.HTTPError directly for certain HTTP errors.
             # Convert 403 Forbidden to ZendeskForbiddenError for consistent handling in discover.py.
             if e.response is not None and e.response.status_code == 403:
-                raise http.ZendeskForbiddenError(str(e)) from None
+                raise ZendeskForbiddenError(str(e)) from None
             raise
         except APIException as e:
             raise_forbidden_if_access_denied(e)
